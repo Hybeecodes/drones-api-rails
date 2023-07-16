@@ -60,13 +60,37 @@ class DronesController < ApplicationController
       end
       # update drone status to loaded
       drone.update(status: "Loaded")
-      render json: { message: "Medications loaded successfully" }, status: :ok
+      render json: { message: "Medications loaded successfully", drone: drone }, status: :ok
       return
     rescue => e
       puts "Unable to load medications: #{e.message.to_s}"
       render json: { message: 'Sorry, Unable to load medications!' }, status: :internal_server_error
       return
     end
+  end
+
+  def drone_medications
+    drone_id = params["drone_id"]
+    drone = Drone.find_by(id: drone_id)
+    unless drone
+      return render json: { message: "Drone with id '#{drone_id}' not found" }, status: :not_found
+    end
+    drone_medications = drone.medications
+    render json: { message: "Drone medications", medications: drone_medications }, status: :ok
+  end
+
+  def get_drones
+    drones = Drone.all
+    render json: { message: "Drones", drones: drones }, status: :ok
+  end
+
+  def get_drone
+    drone_id = params["drone_id"]
+    drone = Drone.find_by(id: drone_id)
+    unless drone
+      return render json: { message: "Drone with id '#{drone_id}' not found" }, status: :not_found
+    end
+    render json: { message: "Drone", drone: drone }, status: :ok
   end
 
   private
